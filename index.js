@@ -1,60 +1,73 @@
 'use strict';
-var array = [];
+// создаём массив состояния игрового поля и заполняем его случайными числами
+var array = [[], [], [], []];
 var usedArray = [];
-var table = document.getElementById("table");
-
-//создаём случайный массив
-while (usedArray.length <= 15) {
-    var randomNumber = getRandomInt(0, 15);
-    if (usedArray.indexOf(randomNumber) === -1) {
-        array.push(randomNumber);
-        usedArray.push(randomNumber);
-    }
-    else {
-        continue;
-    }
-}
-
-console.log(array);
-
-//забиваем в таблицу 
-var indexInArray = 0;
-for(var i=0; i<=3; i++) {
-    for(var j=0; j<=3; j++) {
-        if (array[indexInArray] !== 0) {
-            table.firstElementChild.children[i].children[j].textContent = array[indexInArray];
-            indexInArray++;
-            table.firstElementChild.children[i].children[j].addEventListener('click', changePlace);
-        } else {
-            table.firstElementChild.children[i].children[j].textContent = '';
-            indexInArray++;
-            table.firstElementChild.children[i].children[j].addEventListener('click', changePlace);
+for (var i = 0; i <= 3; i++) {
+    for (var j = 0; j <= 3; j++) {
+        var randomInt = getRandomInt(1, 16);
+        while (usedArray.indexOf(randomInt) !== -1) {
+            randomInt = getRandomInt(1, 16);
         }
-
-    }
-}
-table.firstElementChild.children[1].children[1].style.backgroundColor = 'red';
-
-
-function changePlace() {
-    console.log(event.currentTarget.nextElementSibling);
-    if (checkRight(event.currentTarget.nextElementSibling)) {
-        //меняем местами в массиве
-        var tempArrayValue = parseInt(event.currentTarget.textContent);
-        console.log(tempArrayValue);
-        array[array.indexOf(parseInt(event.currentTarget.textContent))] = array[array.indexOf(parseInt(event.currentTarget.nextElementSibling.textContent))];
-        array[array.indexOf(parseInt(event.currentTarget.nextElementSibling.textContent))] = tempArrayValue;
-        //обновляем таблицу ...
+        array[i][j] = randomInt;
+        usedArray.push(randomInt);
     }
 }
 
-//проверка соседа справа
-function checkRight(rightElem) {
-    if ( rightElem !== null && rightElem.textContent === '') {
-        return true;
+//заполняем этими числами таблицу
+var table = document.getElementById('table').firstElementChild;
+for (var i = 0; i <= 3; i++) {
+    for (var j = 0; j <= 3; j++) {
+        if (array[i][j] !== 16) {
+            table.rows[i].cells[j].innerHTML = array[i][j];
+            //вешаем обработчик события по клику
+            table.rows[i].cells[j].addEventListener('click', checkCells);
+        } else {
+            //число 16 меняем на пустую строку
+            table.rows[i].cells[j].innerHTML = '';
+            //вешаем обработчик события по клику
+            table.rows[i].cells[j].addEventListener('click', checkCells);
+        }
     }
-    else {
-        return false;
+}
+
+function checkCells() {
+    //получаем значение в клетке, которую нажали
+    var targetValue = parseInt(event.currentTarget.innerHTML);
+    if (checkNeighbor(targetValue, 0, 1)) { //проверяем соседа справа, и если нет (=16), то меняем
+        changePlace(targetValue, 0, 1);
+    } else if (checkNeighbor(targetValue, 0, -1)) { //проверяем соседа слева, и если нет (=16), то меняем
+        changePlace(targetValue, 0, -1);
+    } else if (checkNeighbor(targetValue, -1, 0)) { //проверяем соседа сверху, и если нет (=16), то меняем
+        changePlace(targetValue, -1, 0);
+    } else if (checkNeighbor(targetValue, 1, 0)) { //проверяем соседа снизу, и если нет (=16), то меняем
+        changePlace(targetValue, 1, 0);
+    }
+}
+
+// функция проверки соседа справа/слева/сверху/снизу
+function checkNeighbor(targetValue, changeOf_i, changeOf_j) {
+    for (var i = 0; i < array.length; i++) {
+        for (var j = 0; j < array[i].length; j++) {
+            if (array[i][j] === targetValue && array[i+changeOf_i] !== undefined && array[j+changeOf_j] !== undefined && array[i+changeOf_i][j+changeOf_j] === 16) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+//функция смены значений в массиве и в таблице
+function changePlace(targetValue, changeOf_i, changeOf_j) {
+    outer: for (var i = 0; i < array.length; i++) {
+        for (var j = 0; j < array[i].length; j++) {
+            if (array[i][j] === targetValue) {
+                array[i+changeOf_i][j+changeOf_j] = targetValue;
+                table.rows[i+changeOf_i].cells[j+changeOf_j].innerHTML = array[i+changeOf_i][j+changeOf_j];
+                array[i][j] = 16;
+                table.rows[i].cells[j].innerHTML = '';
+                break outer;
+            }
+        }
     }
 }
 
