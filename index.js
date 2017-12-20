@@ -17,7 +17,7 @@ for (var i = 0; i <= 3; i++) {
     }
 }
 //заполняем этими числами таблицу
-var table = document.getElementById('table').firstElementChild;
+var table = document.getElementById('table');
 for (var i = 0; i <= 3; i++) {
     for (var j = 0; j <= 3; j++) {
         if (array[i][j] !== 16) {
@@ -26,11 +26,15 @@ for (var i = 0; i <= 3; i++) {
             table.rows[i].cells[j].addEventListener('click', checkCells);
             //обработчик на запуск таймера
             table.rows[i].cells[j].addEventListener('click', createTimer);
+            //установка серых ячеек
+            table.rows[i].cells[j].style.backgroundColor = 'rgba(0, 0, 0, 0.15)';
         } else {
             //число 16 меняем на пустую строку
             table.rows[i].cells[j].innerHTML = '';
             //вешаем обработчик события по клику
             table.rows[i].cells[j].addEventListener('click', checkCells);
+            //установка белой ячейки
+            table.rows[i].cells[j].style.backgroundColor = 'white';
         }
     }
 }
@@ -64,9 +68,44 @@ function changePlace(targetValue, changeOf_i, changeOf_j) {
         for (var j = 0; j < array[i].length; j++) {
             if (array[i][j] === targetValue) {
                 array[i + changeOf_i][j + changeOf_j] = targetValue;
-                table.rows[i + changeOf_i].cells[j + changeOf_j].innerHTML = array[i + changeOf_i][j + changeOf_j];
+                var tempColor = table.rows[i].cells[j].style.backgroundColor;
+                var div = document.createElement('div'); //создание временного div'a
+                div.innerHTML = table.rows[i].cells[j].innerHTML;
+                div.style.textAlign = 'center';
+                div.style.lineHeight = '49px';
+                div.id = 'movingDiv';
+                div.style.backgroundColor = tempColor;
+                div.style.display = 'inline-block';
+                div.style.position = 'absolute';
+                div.style.width = '51px';
+                div.style.height = '51px';
+                div.style.border = '1px solid white';
+                div.style.fontSize = '32px';
+                div.style.top = event.currentTarget.offsetTop + 1 + 'px';
+                div.style.left = table.offsetLeft + event.currentTarget.offsetLeft + 1 + 'px';
+                div.style.transitionProperty = 'top left';
+                div.style.transitionDuration = '1s'
+                document.getElementsByTagName('body')[0].appendChild(div);
+                setTimeout(function() {
+                    if (changeOf_i === 0 && changeOf_j === 1) {
+                        div.style.left = div.offsetLeft + 50 + 'px';
+                    } else if (changeOf_i === 0 && changeOf_j === -1) {
+                        div.style.left = div.offsetLeft - 50 + 'px';
+                    } else if (changeOf_i === -1 && changeOf_j === 0) {
+                        div.style.top = div.offsetTop - 50 + 'px';
+                    } else if (changeOf_i === 1 && changeOf_j === 0) {
+                        div.style.top = div.offsetTop + 50 + 'px';
+                    };
+                    setTimeout(function() {
+                        document.getElementsByTagName('body')[0].removeChild(div); //удаление временного div'a
+                        table.rows[i + changeOf_i].cells[j + changeOf_j].innerHTML = array[i + changeOf_i][j + changeOf_j];
+                        table.rows[i + changeOf_i].cells[j + changeOf_j].style.backgroundColor = tempColor;
+                    }, 1000)
+                }, 0)
+
                 array[i][j] = 16;
                 table.rows[i].cells[j].innerHTML = '';
+                table.rows[i].cells[j].style.backgroundColor = 'white';
                 break outer;
             }
         }
@@ -83,7 +122,7 @@ function changePlace(targetValue, changeOf_i, changeOf_j) {
             timerState = 0;
             alert('Ура! Вы решили головоломку за ' + solveTimeSeconds + '.' + solveTimeMiliseconds + ' сек.');
         }
-    }, 0);
+    }, 1000);
 }
 
 function createTimer() {
