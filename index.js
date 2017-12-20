@@ -80,22 +80,9 @@ function checkCells() {
 }
 // функция проверки соседа справа/слева/сверху/снизу
 function checkNeighbor(targetValue, changeOf_i, changeOf_j) {
-    // console.log('Вызвалась функция проверки соседа');
-    // console.log(array.length + ' - длина массива');
-    // console.log(targetValue + ' - targetValue');
     for (var i = 0; i < array.length; i++) {
-        // console.log(array[i].length + ' - длина подмассива');
         for (var j = 0; j < array[i].length; j++) {
-            console.log(i + ' -  i');
-            console.log(j + ' -  j');
-            console.log(array[i][j] + ' - array[i][j]');
-            console.log(array[i + changeOf_i] + ' - array[i + changeOf_i]');
-            // console.log(array[j + changeOf_j] + ' - array[j + changeOf_j]');
-            // console.log(array[i + changeOf_i][j + changeOf_j] + ' - array[i + changeOf_i][j + changeOf_j]');
-            console.log('\n');
-
             if (array[i][j] === targetValue && array[i + changeOf_i] !== undefined /*&& array[j + changeOf_j] !== undefined */&& array[i + changeOf_i][j + changeOf_j] === numberOfCells) {
-                console.log('Возвращаю true');
                 return true;
             }
         }
